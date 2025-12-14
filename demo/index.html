@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Sample Deploy Demo</title>
+    <style>body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; padding:2rem;}</style>
+  </head>
+  <body>
+    <h1>Sample Deploy Demo</h1>
+    <p>This demo fetches the app's root endpoint (<code>/</code>) and shows the JSON response.</p>
+    <pre id="output">Loading…</pre>
+    <script>
+      (async function(){
+        try{
+          // Try localhost (for local dev) then fallback to window.location
+          const urls = ['http://localhost:3000/', window.location.origin + '/'];
+          let res;
+          for (const url of urls){
+            try{ res = await fetch(url); if(res.ok) break; }catch(e){}
+          }
+          if(!res) throw new Error('No endpoint found');
+          const body = await res.json();
+          document.getElementById('output').textContent = JSON.stringify(body, null, 2);
+        }catch(e){
+          document.getElementById('output').textContent = 'Error: ' + e.message;
+        }
+      })();
+    </script>
+  </body>
+ </html>

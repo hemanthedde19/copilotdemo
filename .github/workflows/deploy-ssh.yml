@@ -1,0 +1,24 @@
+name: SSH Deploy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.8.1
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Ensure docker is available on server via SSH
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker --version || true"
+
+      - name: Pull and restart container on remote
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker pull ${{ secrets.DOCKER_IMAGE }}:latest && docker stop sample-deploy || true && docker rm sample-deploy || true && docker run -d --name sample-deploy -p 80:3000 ${{ secrets.DOCKER_IMAGE }}:latest"
